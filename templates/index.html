@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Crypto Fraud Detector</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt me-2"></i>
+                Crypto Fraud Detector
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text" id="model-status">
+                    <i class="fas fa-circle text-warning"></i> Model: Not Trained
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Main Analysis Panel -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-search me-2"></i>
+                            Wallet Analysis
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-wallet"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="walletAddress" 
+                                           placeholder="Enter Ethereum wallet address (0x...)" 
+                                           value="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6">
+                                    <button class="btn btn-primary" type="button" id="analyzeBtn">
+                                        <i class="fas fa-search me-1"></i> Analyze
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-secondary" type="button" id="sampleBtn">
+                                    <i class="fas fa-random me-1"></i> Use Sample
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading Indicator -->
+                        <div id="loadingIndicator" class="text-center d-none">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Analyzing wallet... This may take a few moments.</p>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div id="resultsSection" class="d-none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title">Risk Level</h6>
+                                            <div id="riskLevel" class="display-6 fw-bold"></div>
+                                            <div id="riskDescription" class="text-muted"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title">Anomaly Score</h6>
+                                            <div id="anomalyScore" class="display-6 fw-bold"></div>
+                                            <div class="progress mt-2">
+                                                <div id="anomalyProgress" class="progress-bar" role="progressbar"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transaction Summary -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Transaction Summary</h6>
+                                            <div class="row text-center">
+                                                <div class="col-md-3">
+                                                    <div class="h4 mb-0" id="totalTx">-</div>
+                                                    <small class="text-muted">Total Transactions</small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="h4 mb-0" id="totalVolume">-</div>
+                                                    <small class="text-muted">Total Volume (ETH)</small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="h4 mb-0" id="avgValue">-</div>
+                                                    <small class="text-muted">Avg Value (ETH)</small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="h4 mb-0" id="currentBalance">-</div>
+                                                    <small class="text-muted">Current Balance (ETH)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Visualizations -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <ul class="nav nav-tabs" id="vizTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="timeline-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#timeline" type="button" role="tab">
+                                                <i class="fas fa-chart-line me-1"></i> Timeline
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="network-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#network" type="button" role="tab">
+                                                <i class="fas fa-project-diagram me-1"></i> Network
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#analysis" type="button" role="tab">
+                                                <i class="fas fa-chart-bar me-1"></i> Analysis
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="models-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#models" type="button" role="tab">
+                                                <i class="fas fa-brain me-1"></i> Models
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="vizTabContent">
+                                        <div class="tab-pane fade show active" id="timeline" role="tabpanel">
+                                            <div id="timelineChart" class="viz-container"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="network" role="tabpanel">
+                                            <div id="networkChart" class="viz-container"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="analysis" role="tabpanel">
+                                            <div id="analysisChart" class="viz-container"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="models" role="tabpanel">
+                                            <div id="modelsChart" class="viz-container"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Model Training Panel -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>
+                            Model Training
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Training Wallets (one per line)</label>
+                            <textarea class="form-control" id="trainingWallets" rows="4" 
+                                      placeholder="Enter wallet addresses for training...">0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6
+0x28C6c06298d514Db089934071355E5743bf21d60
+0x21a31Ee1afC51d94C2eFcCAa2092aD1028285549</textarea>
+                        </div>
+                        <button class="btn btn-success w-100" id="trainBtn">
+                            <i class="fas fa-play me-1"></i> Train Model
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Batch Analysis Panel -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Batch Analysis
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Wallet Addresses (one per line)</label>
+                            <textarea class="form-control" id="batchWallets" rows="3" 
+                                      placeholder="Enter wallet addresses for batch analysis..."></textarea>
+                        </div>
+                        <button class="btn btn-info w-100" id="batchBtn">
+                            <i class="fas fa-tasks me-1"></i> Analyze Batch
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Generation -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Generate Report
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-warning w-100" id="reportBtn">
+                            <i class="fas fa-download me-1"></i> Download Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            System Status
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>API Status:</span>
+                            <span id="apiStatus" class="badge bg-success">Online</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Model Status:</span>
+                            <span id="modelStatus" class="badge bg-warning">Not Trained</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Last Update:</span>
+                            <span id="lastUpdate" class="text-muted">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="errorMessage">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Success
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="successMessage">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

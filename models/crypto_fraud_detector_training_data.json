@@ -1,0 +1,60 @@
+[
+  {
+    "wallet_address": "0xD551234Ae421e3BCBA99A0Da6d736074f22192FF",
+    "transaction_count": 1113,
+    "features": {
+      "total_transactions": 1113,
+      "unique_counterparties": 246,
+      "avg_transaction_value": 28.052000934997103,
+      "std_transaction_value": 935.4000902249514,
+      "max_transaction_value": 31206.5081014687,
+      "min_transaction_value": 0.0,
+      "total_volume": 31221.877040651776,
+      "avg_time_between_tx": 58.4710489108713,
+      "std_time_between_tx": 573.6495110517906,
+      "transaction_frequency": 0.41082866104265675,
+      "incoming_transactions": 171,
+      "outgoing_transactions": 942,
+      "incoming_volume": 14.652018806705582,
+      "outgoing_volume": 31207.225021845068,
+      "new_address_ratio": 0.8693877551020408,
+      "avg_gas_price": 35904244782.381,
+      "avg_gas_used": 45512.436,
+      "total_gas_fees": 1.7047414005597634,
+      "internal_tx_ratio": 0.10152740341419586,
+      "high_value_tx_ratio": 0.1554357592093441,
+      "rapid_transaction_ratio": 0.8363309352517986,
+      "suspicious_pattern_score": 0.5
+    },
+    "status": "success"
+  },
+  {
+    "wallet_address": "0x7E9237724e888f8b28fadc06F2AdE6ce981EC37F",
+    "transaction_count": 4,
+    "features": {
+      "total_transactions": 4,
+      "unique_counterparties": 2,
+      "avg_transaction_value": 0.0,
+      "std_transaction_value": 0.0,
+      "max_transaction_value": 0.0,
+      "min_transaction_value": 0.0,
+      "total_volume": 0.0,
+      "avg_time_between_tx": 0.9988888888888888,
+      "std_time_between_tx": 0.001924500897298733,
+      "transaction_frequency": 32.03559510567297,
+      "incoming_transactions": 4,
+      "outgoing_transactions": 0,
+      "incoming_volume": 0.0,
+      "outgoing_volume": 0.0,
+      "new_address_ratio": 0.0,
+      "avg_gas_price": 291526259.75,
+      "avg_gas_used": 21000.0,
+      "total_gas_fees": 2.4488205819000003e-05,
+      "internal_tx_ratio": 0.0,
+      "high_value_tx_ratio": 0.0,
+      "rapid_transaction_ratio": 0.3333333333333333,
+      "suspicious_pattern_score": 0.0
+    },
+    "status": "success"
+  }
+]

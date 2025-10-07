@@ -1,0 +1,35 @@
+# Environment variables
+.env
+
+# Virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Results and reports
+results/
+demo_report_*.txt
+
+# Large data files
+eth_addresses.csv
+
+# Duplicate directories
+crypto-fraud-detector/
+
+# IDE files
+.vscode/
+.idea/
